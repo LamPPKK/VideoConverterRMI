@@ -27,22 +27,25 @@ import java.util.logging.Logger;
  */
 public class Server extends UnicastRemoteObject implements Convert {
 
-    private static ServerSocket server;
-    private static Socket connection;
+    private ServerSocket server;
+    private Socket connection;
 
     public Server() throws RemoteException, IOException {
         this.server = new ServerSocket(3004);
+//        server.setSoTimeout(100000);
         try {
             Registry reg = LocateRegistry.createRegistry(9999);
-            reg.rebind("convert from file",this);
+            reg.rebind("convert from file", this);
             Registry reg2 = LocateRegistry.createRegistry(8888);
-            reg2.rebind("convert from link youtube",this);
+            reg2.rebind("convert from link youtube", this);
         } catch (Exception e) {
             e.printStackTrace();
         }
         while (true) {
-            this.connection = server.accept();
-            System.out.println("1 devices has connected!");
+            connection = server.accept();
+            connection.setTcpNoDelay(true);
+            connection.setSoTimeout(200000);
+            System.out.println("1 device has connected");
         }
     }
 
@@ -52,7 +55,6 @@ public class Server extends UnicastRemoteObject implements Convert {
 
     @Override
     public void ConvertFromFile(File source) throws RemoteException {
-
         try {
             Encoder forMusic = new Encoder();
 
@@ -73,20 +75,53 @@ public class Server extends UnicastRemoteObject implements Convert {
             String fileName = source.getName();
 //            System.out.println(fileName.substring(0, fileName.lastIndexOf(".")).toString());
             File target = new File(folder + "\\" + fileName.substring(0, fileName.lastIndexOf(".")) + ".mp3");
-            System.out.println(folder + "\\" + fileName.substring(0, fileName.lastIndexOf(".")) + ".mp3");
+//                System.out.println(folder + "\\" + fileName.substring(0, fileName.lastIndexOf(".")) + ".mp3");
 //            System.out.println(target.getAbsolutePath());
             forMusic.encode(source, target, specifications);
-            System.out.println("Done!");
-
+            System.out.println("Convert Done!");
+            /*
             byte[] content = Files.readAllBytes(Paths.get(target.getPath()));
             System.out.println(content.length);
-            DataOutputStream dos = new DataOutputStream(this.connection.getOutputStream());
+            DataOutputStream dos = new DataOutputStream(connection.getOutputStream());
             dos.writeInt(content.length);
             System.out.println("Length sent!");
-            dos.flush();
+//            dos.flush();
             dos.write(content);
             System.out.println("Content sent!");
             dos.close();
+             */
+
+            FileInputStream fis = new FileInputStream(target);
+            BufferedInputStream bis = new BufferedInputStream(fis);
+
+            //Get socket's output stream
+            OutputStream os = connection.getOutputStream();
+
+            //Read File Contents into contents array 
+            byte[] contents;
+            long fileLength = target.length();
+            long current = 0;
+
+            long start = System.nanoTime();
+            while (current != fileLength) {
+                int size = 10000;
+                if (fileLength - current >= size) {
+                    current += size;
+                } else {
+                    size = (int) (fileLength - current);
+                    current = fileLength;
+                }
+                contents = new byte[size];
+                bis.read(contents, 0, size);
+                os.write(contents);
+                System.out.print("Sending ... " + (current * 100) / fileLength + "% complete!");
+            }
+
+            os.flush();
+            //File transfer done. Close the socket connection!
+            connection.close();
+//            ssock.close();
+            System.out.println("File sent succesfully!");
         } catch (Exception e) {
             e.printStackTrace();
         }
