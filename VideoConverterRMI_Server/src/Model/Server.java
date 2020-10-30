@@ -32,6 +32,7 @@ public class Server extends UnicastRemoteObject implements Convert {
 
     public Server() throws RemoteException, IOException {
         this.server = new ServerSocket(3004);
+//        server.setSoTimeout(200000);
 //        server.setSoTimeout(100000);
         try {
             Registry reg = LocateRegistry.createRegistry(9999);
@@ -43,8 +44,8 @@ public class Server extends UnicastRemoteObject implements Convert {
         }
         while (true) {
             connection = server.accept();
-            connection.setTcpNoDelay(true);
-            connection.setSoTimeout(200000);
+//            connection.setTcpNoDelay(true);
+//            connection.setSoTimeout(200000);
             System.out.println("1 device has connected");
         }
     }
@@ -56,6 +57,7 @@ public class Server extends UnicastRemoteObject implements Convert {
     @Override
     public void ConvertFromFile(File source) throws RemoteException {
         try {
+            /*
             Encoder forMusic = new Encoder();
 
             //audioAttribute obj
@@ -90,7 +92,7 @@ public class Server extends UnicastRemoteObject implements Convert {
             System.out.println("Content sent!");
             dos.close();
              */
-
+            File target=new File("C:\\Users\\Vu Minh Duc\\Music\\[MV] Sam kim(샘김) - Breath(숨) 드라마 사이코지만 괜찮아Nhạc Phim Điên Thì Có SaoIt's Okay Not To Be Okay OST.mp3");
             FileInputStream fis = new FileInputStream(target);
             BufferedInputStream bis = new BufferedInputStream(fis);
 
@@ -102,7 +104,7 @@ public class Server extends UnicastRemoteObject implements Convert {
             long fileLength = target.length();
             long current = 0;
 
-            long start = System.nanoTime();
+//            long start = System.nanoTime();
             while (current != fileLength) {
                 int size = 10000;
                 if (fileLength - current >= size) {
@@ -114,10 +116,9 @@ public class Server extends UnicastRemoteObject implements Convert {
                 contents = new byte[size];
                 bis.read(contents, 0, size);
                 os.write(contents);
-                System.out.print("Sending ... " + (current * 100) / fileLength + "% complete!");
+                os.flush();
+                System.out.println("Sending ... " + (current * 100) / fileLength + "% complete!" + " Current: "+current+" Size: "+size);
             }
-
-            os.flush();
             //File transfer done. Close the socket connection!
             connection.close();
 //            ssock.close();
