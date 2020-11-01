@@ -22,6 +22,7 @@ public class Client {
 
     public Client() throws IOException {
         clientSocket = new Socket("localhost", 3004);
+//        clientSocket.setSoTimeout(20000);
     }
 
     public static void main(String[] args) throws IOException {
@@ -47,7 +48,7 @@ public class Client {
 */
         String nameFile = source.getName();
         String savePath = target.getAbsolutePath() + "\\\\" + nameFile.substring(0, nameFile.lastIndexOf(".")) + ".mp3";
-        System.out.println(savePath);
+//        System.out.println(savePath);
 //        FileOutputStream fos = new FileOutputStream(savePath);
 //        fos.write(receive);
 
@@ -60,12 +61,12 @@ public class Client {
 
         //No of bytes read in one read() call
         int bytesRead = 0;
-
+//        System.out.println(is.markSupported());
         while ((bytesRead = is.read(contents)) != -1) {
             bos.write(contents, 0, bytesRead);
-            System.out.println("Receiving...  ");
+//            bos.flush();
+//            System.out.println("Receiving...  ");
         }
-
         bos.flush();
         clientSocket.close();
 

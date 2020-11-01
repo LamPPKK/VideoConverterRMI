@@ -10,7 +10,7 @@ import java.io.*;
  *
  * @author Vu Minh Duc
  */
-public interface Convert extends Remote {
-    public void ConvertFromFile(File source) throws RemoteException;
-    public void ConvertFromYT() throws RemoteException;
+public interface FileInterface extends Remote{
+    public byte[] DownloadFile(String fileName) throws RemoteException;
+    public void SendFile(String fileName) throws RemoteException;
 }
