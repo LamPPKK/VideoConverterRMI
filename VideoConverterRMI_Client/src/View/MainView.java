@@ -168,7 +168,7 @@ public class MainView extends javax.swing.JFrame implements Runnable {
         File source=chooseFile.getSelectedFile();
         File target=chooseFolder.getSelectedFile();
         try {
-            client.ConvertFromFile(source, target);
+//            client.ConvertFromFile(source, target);
         } catch (Exception e) {
             e.printStackTrace();
         }
