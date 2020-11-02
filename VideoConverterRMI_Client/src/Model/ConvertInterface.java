@@ -11,6 +11,6 @@ import java.io.*;
  * @author Vu Minh Duc
  */
 public interface ConvertInterface extends Remote {
-    public byte[] ConvertFromFile(String fileName)throws RemoteException;
+    public String ConvertFromFile(String fileName)throws RemoteException;
     public byte[] ConvertFromYT(String link) throws RemoteException;
 }

@@ -17,17 +17,25 @@ import java.net.*;
  * @author Vu Minh Duc
  */
 public class Client {
+    
+    public ConvertInterface convertStub;
+    public FileInterface fileStub;
+    
+//    private Socket clientSocket;
 
-    private Socket clientSocket;
-
-    public Client() throws IOException {
-        clientSocket = new Socket("localhost", 3004);
+    public Client() throws RemoteException, NotBoundException {
+//        clientSocket = new Socket("localhost", 3004);
 //        clientSocket.setSoTimeout(20000);
+        Registry registry=LocateRegistry.getRegistry();
+        convertStub=(ConvertInterface) registry.lookup("ConvertInterface");
+        fileStub=(FileInterface) registry.lookup("FileInterface");
     }
 
-    public static void main(String[] args) throws IOException {
-        Client c=new Client();
-        new MainView(c).run();
+    public static void main(String[] args) throws RemoteException, NotBoundException {
+        Client client=new Client();
+        MainView view=new MainView();
+        view.setClient(client);  
+        view.setVisible(true);
     }
- 
+    
 }

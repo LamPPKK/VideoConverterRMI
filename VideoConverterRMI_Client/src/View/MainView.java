@@ -30,10 +30,9 @@ public class MainView extends javax.swing.JFrame implements Runnable {
     /**
      * Creates new form MainView
      */
-    public MainView(Client client) {
+    public MainView() {
         initComponents();
         control=new MainController();
-        this.client=client;
     }
 
     /**
@@ -167,8 +166,12 @@ public class MainView extends javax.swing.JFrame implements Runnable {
         // TODO add your handling code here:
         File source=chooseFile.getSelectedFile();
         File target=chooseFolder.getSelectedFile();
-        try {
-//            client.ConvertFromFile(source, target);
+        try {   
+            System.out.println(source.getAbsolutePath());
+            String fileServer= client.convertStub.ConvertFromFile(source.getAbsolutePath());           
+//            client.fileStub.SendFile(fileServer);
+            byte[] data=client.fileStub.DownloadFile(fileServer);
+            client.fileStub.SaveToFile(data, target.getAbsolutePath());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -209,6 +212,52 @@ public class MainView extends javax.swing.JFrame implements Runnable {
         return jTextField1;
     }
 
+    public void setControl(MainController control) {
+        this.control = control;
+    }
+
+    public void setChooseFile(JFileChooser chooseFile) {
+        this.chooseFile = chooseFile;
+    }
+
+    public void setChooseFolder(JFileChooser chooseFolder) {
+        this.chooseFolder = chooseFolder;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
+    }
+
+    public void setjButton1(JButton jButton1) {
+        this.jButton1 = jButton1;
+    }
+
+    public void setjButton2(JButton jButton2) {
+        this.jButton2 = jButton2;
+    }
+
+    public void setjComboBox1(JComboBox<String> jComboBox1) {
+        this.jComboBox1 = jComboBox1;
+    }
+
+    public void setjLabel1(JLabel jLabel1) {
+        this.jLabel1 = jLabel1;
+    }
+
+    public void setjPanel1(JPanel jPanel1) {
+        this.jPanel1 = jPanel1;
+    }
+
+    public void setjTextField1(JTextField jTextField1) {
+        this.jTextField1 = jTextField1;
+    }
+
+    public void setjTextField2(JTextField jTextField2) {
+        this.jTextField2 = jTextField2;
+    }
+
+    
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
@@ -221,6 +270,6 @@ public class MainView extends javax.swing.JFrame implements Runnable {
 
     @Override
     public void run() {
-        new MainView(client).setVisible(true);
+        new MainView().setVisible(true);
     }
 }
