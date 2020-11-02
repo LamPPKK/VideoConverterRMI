@@ -5,6 +5,9 @@
  */
 package Model;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.rmi.*;
 import java.rmi.server.*;
 import java.rmi.registry.*;
@@ -19,12 +22,14 @@ public class Server {
         try{
             ConvertInterfaceImpl convertImpl = new ConvertInterfaceImpl();
             FileInterfaceImpl fileImpl = new FileInterfaceImpl();
-            Registry registryFile = LocateRegistry.createRegistry(1099);
-            registryFile.bind("FileInterface",fileImpl);
+            Registry registry= LocateRegistry.createRegistry(1099);
+            UnicastRemoteObject.exportObject(convertImpl, 1099);
+            UnicastRemoteObject.exportObject(fileImpl, 1099);
+            registry.bind("FileInterface",fileImpl);
             System.out.println("Register FileImpl!");
-            Registry registryConvert=LocateRegistry.createRegistry(1098);
-            registryConvert.bind("ConvertInterface",convertImpl);
+            registry.bind("ConvertInterface",convertImpl);
             System.out.println("Register ConvertImpl!");
+           
         }catch(Exception e){
             e.printStackTrace();
         }

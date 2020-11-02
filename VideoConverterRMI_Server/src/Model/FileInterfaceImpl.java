@@ -21,9 +21,9 @@ public class FileInterfaceImpl extends UnicastRemoteObject implements FileInterf
     }
 
     @Override
-    public byte[] DownloadFile(String fileName) throws RemoteException {
-        File file = new File(fileName);
-        int length = fileName.length();
+    public byte[] DownloadFile(String filePath) throws RemoteException {
+        File file = new File(filePath);
+        int length = (int)file.length();
         byte[] data = new byte[length];
         try {
             BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
@@ -32,13 +32,14 @@ public class FileInterfaceImpl extends UnicastRemoteObject implements FileInterf
         } catch (Exception e) {
             e.printStackTrace();
         }
+        System.out.println("Download done!");
         return data;
     }
 
     @Override
-    public void SendFile(String fileName) throws RemoteException {
-        File file = new File(fileName);
-        int length = fileName.length();
+    public void SendFile(String filePath) throws RemoteException {
+        File file = new File(filePath);
+        int length = (int)file.length();
         byte[] data = new byte[length];
         try {
             BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
@@ -48,6 +49,22 @@ public class FileInterfaceImpl extends UnicastRemoteObject implements FileInterf
         } catch (Exception e) {
             e.printStackTrace();
         }
+        System.out.println("Sent!");
     }
 
+    
+    @Override
+    public void SaveToFile(byte[] data, String filePath) throws RemoteException {
+       String fileName=filePath + "\\" + "videoplayback.mp3";
+        File file = new File(fileName);
+        FileOutputStream fos;
+        try {
+            fos = new FileOutputStream(file);
+            fos.write(data);
+            fos.close();
+        } catch (Exception e) {
+            System.out.println("Client Exception : "+e);
+        }
+        System.out.println("Saved!");
+    }
 }
