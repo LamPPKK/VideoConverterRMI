@@ -168,10 +168,10 @@ public class MainView extends javax.swing.JFrame implements Runnable {
         File target=chooseFolder.getSelectedFile();
         try {   
             System.out.println(source.getAbsolutePath());
-            String fileServer= client.convertStub.ConvertFromFile(source.getAbsolutePath());           
+//            String fileServer= client.convertStub.ConvertFromFile(source.getAbsolutePath());           
 //            client.fileStub.SendFile(fileServer);
-            byte[] data=client.fileStub.DownloadFile(fileServer);
-            client.fileStub.SaveToFile(data, target.getAbsolutePath());
+//            byte[] data=client.fileStub.DownloadFile(fileServer);
+//            client.fileStub.SaveToFile(data, target.getAbsolutePath());
         } catch (Exception e) {
             e.printStackTrace();
         }

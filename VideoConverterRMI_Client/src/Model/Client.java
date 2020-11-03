@@ -11,31 +11,40 @@ import java.util.*;
 import java.rmi.*;
 import java.rmi.registry.*;
 import java.net.*;
+import java.rmi.server.RMIClientSocketFactory;
 
 /**
  *
  * @author Vu Minh Duc
  */
-public class Client {
-    
+public class Client implements Runnable {
+
+    MainView view;
+    RMIClientSocketFactory scf;
     public ConvertInterface convertStub;
     public FileInterface fileStub;
-    
-//    private Socket clientSocket;
 
+//    private Socket clientSocket;
     public Client() throws RemoteException, NotBoundException {
-//        clientSocket = new Socket("localhost", 3004);
-//        clientSocket.setSoTimeout(20000);
-        Registry registry=LocateRegistry.getRegistry();
-        convertStub=(ConvertInterface) registry.lookup("ConvertInterface");
-        fileStub=(FileInterface) registry.lookup("FileInterface");
+        Registry registry = LocateRegistry.getRegistry();
+        convertStub = (ConvertInterface) registry.lookup("ConvertInterface");
+        fileStub = (FileInterface) registry.lookup("FileInterface");
+        scf = new RMIClientSocketFactory() {
+            @Override
+            public Socket createSocket(String host, int port) throws IOException {
+                return new Socket(host, port);
+            }
+        };
+        view = new MainView();
+        view.setClient(this);
+    }
+
+    @Override
+    public void run() {
+        view.setVisible(true);
     }
 
     public static void main(String[] args) throws RemoteException, NotBoundException {
-        Client client=new Client();
-        MainView view=new MainView();
-        view.setClient(client);  
-        view.setVisible(true);
+
     }
-    
 }
