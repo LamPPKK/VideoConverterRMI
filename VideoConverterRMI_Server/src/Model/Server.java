@@ -11,6 +11,7 @@ import java.rmi.*;
 import java.rmi.server.*;
 import java.rmi.registry.*;
 import java.net.*;
+import java.io.*;
 
 /**
  *
@@ -44,18 +45,11 @@ public class Server implements Runnable {
     }
 
     public static void main(String[] args) throws IOException, RemoteException, AlreadyBoundException {
-        new Server();
+        new Server().run();
     }
 
     @Override
     public void run() {
-        try {
-            Socket connection = server.accept();
-
-        } catch (Exception e) {
-            System.out.println("Exception " + e);
-            e.printStackTrace();
-        }
-
+        System.out.println("Server started!");
     }
 }

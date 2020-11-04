@@ -4,13 +4,17 @@
  * and open the template in the editor.
  */
 package Model;
+
 import java.rmi.*;
 import java.io.*;
+
 /**
  *
  * @author Vu Minh Duc
  */
 public interface ConvertInterface extends Remote {
-    public String ConvertFromFile(String fileName)throws RemoteException;
+
+    public void ConvertFromFile(String source,String target) throws RemoteException;
+
     public byte[] ConvertFromYT(String link) throws RemoteException;
 }
