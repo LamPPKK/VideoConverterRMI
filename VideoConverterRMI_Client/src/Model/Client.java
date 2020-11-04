@@ -11,66 +11,65 @@ import java.util.*;
 import java.rmi.*;
 import java.rmi.registry.*;
 import java.net.*;
+import java.rmi.server.RMIClientSocketFactory;
 
 /**
  *
  * @author Vu Minh Duc
  */
-public class Client {
+public class Client implements Runnable {
 
-    private Socket clientSocket;
+    MainView view;
+    RMIClientSocketFactory scf;
+    Socket client;
+    public ConvertInterface convertStub;
+    public FileInterface fileStub;
 
-    public Client() throws IOException {
-        clientSocket = new Socket("localhost", 3004);
-//        clientSocket.setSoTimeout(20000);
+//    private Socket clientSocket;
+    public Client() throws RemoteException, NotBoundException, IOException {
+        fileStub = (FileInterface) Naming.lookup("rmi://localhost/file");
+        convertStub = (ConvertInterface) Naming.lookup("rmi://localhost/convert");
+        
+//        scf = new RMIClientSocketFactory() {
+//            @Override
+//            public Socket createSocket(String host, int port) throws IOException {
+//                return new Socket(host, port);
+//            }
+//        };
+//        client=scf.createSocket("localhost", 3004);
+
+        view = new MainView();
+        view.setClient(this);
     }
 
-    public static void main(String[] args) throws IOException {
-        new MainView(new Client()).run();
+    @Override
+    public void run() {
+        view.setVisible(true);
     }
 
-    public void ConvertFromFile(File source, File target) throws IOException {
-        DataInputStream dis = new DataInputStream(clientSocket.getInputStream());
-        try {
-            Registry reg = LocateRegistry.getRegistry("localhost", 9999);
-            Convert convert = (Convert) reg.lookup("convert from file");
-            System.out.println("Ask request");
-            convert.ConvertFromFile(source);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        /*
-        int length = dis.readInt();
-        System.out.println("Length received! :"+length);
-        byte[] receive = new byte[length];
-        dis.readFully(receive, 0, receive.length);
-        System.out.println("Content received!");
-*/
-        String nameFile = source.getName();
-        String savePath = target.getAbsolutePath() + "\\\\" + nameFile.substring(0, nameFile.lastIndexOf(".")) + ".mp3";
-//        System.out.println(savePath);
-//        FileOutputStream fos = new FileOutputStream(savePath);
-//        fos.write(receive);
+    public MainView getView() {
+        return view;
+    }
 
-        byte[] contents = new byte[10000];
+    public RMIClientSocketFactory getScf() {
+        return scf;
+    }
 
-        //Initialize the FileOutputStream to the output file's full path.
-        FileOutputStream fos = new FileOutputStream(savePath);
-        BufferedOutputStream bos = new BufferedOutputStream(fos);
-        InputStream is = clientSocket.getInputStream();
+    public Socket getClient() {
+        return client;
+    }
 
-        //No of bytes read in one read() call
-        int bytesRead = 0;
-//        System.out.println(is.markSupported());
-        while ((bytesRead = is.read(contents)) != -1) {
-            bos.write(contents, 0, bytesRead);
-//            bos.flush();
-//            System.out.println("Receiving...  ");
-        }
-        bos.flush();
-        clientSocket.close();
+    public ConvertInterface getConvertStub() {
+        return convertStub;
+    }
 
-        System.out.println("File saved successfully!");
-//        clientSocket.close();
+    public FileInterface getFileStub() {
+        return fileStub;
+    }
+    
+//    public void sendFile()
+    
+    public static void main(String[] args) throws IOException, RemoteException, NotBoundException {
+        new Client().run();
     }
 }

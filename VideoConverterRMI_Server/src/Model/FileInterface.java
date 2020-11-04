@@ -4,13 +4,19 @@
  * and open the template in the editor.
  */
 package Model;
+
 import java.rmi.*;
 import java.io.*;
+import java.net.Socket;
+
 /**
  *
  * @author Vu Minh Duc
  */
-public interface FileInterface extends Remote{
-    public byte[] DownloadFile(String fileName) throws RemoteException;
-    public void SendFile(String fileName) throws RemoteException;
+public interface FileInterface extends Remote {
+
+    public void UploadFileToServer(byte[] data,String serverPath) throws RemoteException;
+
+    public byte[] DownloadFileFromServer(String serverPath) throws RemoteException;
+
 }

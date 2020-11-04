@@ -27,9 +27,9 @@ public class ConvertInterfaceImpl extends UnicastRemoteObject implements Convert
     }
 
     @Override
-    public byte[] ConvertFromFile(String fileName) throws RemoteException{
-        Encoder forMusic = new Encoder();
+    public void ConvertFromFile(String source,String target) throws RemoteException{
 
+        Encoder forMusic = new Encoder();
         //audioAttribute obj
         AudioAttributes audio = new AudioAttributes();
         audio.setVolume(256);//default
@@ -41,28 +41,22 @@ public class ConvertInterfaceImpl extends UnicastRemoteObject implements Convert
         EncodingAttributes specifications = new EncodingAttributes();
         specifications.setFormat("mp3");
         specifications.setAudioAttributes(audio);
-        File source=new File(fileName);
+        File fileS = new File(source);
+        File fileT=new File(target);
+//        String fileName = source.getName();
 //            System.out.println(source.getAbsolutePath().toString());
-        String folder = "C:\\Users\\Vu Minh Duc\\Documents\\NetBeansProjects\\VideoConverterRMI\\VideoConverterRMI_Server\\Music";
-//            System.out.println(fileName.substring(0, fileName.lastIndexOf(".")).toString());
-        File target = new File(folder + "\\" + fileName.substring(0, fileName.lastIndexOf(".")) + ".mp3");
+//        String folder = "C:\\Users\\Vu Minh Duc\\Documents\\NetBeansProjects\\VideoConverterRMI\\VideoConverterRMI_Server\\Music";
+//        System.out.println("File name: " + fileName.substring(0, fileName.lastIndexOf(".")).toString());
+//        File target = new File(folder + "\\" + fileName.substring(0, fileName.lastIndexOf(".")) + ".mp3");
         try {
-            //                System.out.println(folder + "\\" + fileName.substring(0, fileName.lastIndexOf(".")) + ".mp3");
+//            System.out.println(folder + "\\" + fileName.substring(0, fileName.lastIndexOf(".")) + ".mp3");
 //            System.out.println(target.getAbsolutePath());
-            forMusic.encode(source, target, specifications);
+            forMusic.encode(fileS,fileT, specifications);
         } catch (Exception e) {
             e.printStackTrace();
         }
         System.out.println("Convert Done!");
-        
-        byte[] res=new byte[(int)target.length()];
-        try {
-            FileInputStream fis = new FileInputStream(target);
-            res=fis.readAllBytes();
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-        return res;
+
     }
 
     @Override

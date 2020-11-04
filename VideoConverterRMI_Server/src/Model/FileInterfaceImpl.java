@@ -8,6 +8,7 @@ package Model;
 import java.rmi.*;
 import java.rmi.server.UnicastRemoteObject;
 import java.io.*;
+import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,33 +22,36 @@ public class FileInterfaceImpl extends UnicastRemoteObject implements FileInterf
     }
 
     @Override
-    public byte[] DownloadFile(String fileName) throws RemoteException {
-        File file = new File(fileName);
-        int length = fileName.length();
-        byte[] data = new byte[length];
+    public void UploadFileToServer(byte[] data, String serverPath) throws RemoteException {
+        File serverFile = new File(serverPath);
+        FileOutputStream fos;
         try {
-            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
-            bis.read(data, 0, data.length);
-            bis.close();
+            fos = new FileOutputStream(serverFile);
+            fos.write(data);
+            fos.flush();
+            fos.close();
         } catch (Exception e) {
+            System.out.println("Exception " + e);
             e.printStackTrace();
         }
-        return data;
+        System.out.println("Uploaded to server!");
     }
 
     @Override
-    public void SendFile(String fileName) throws RemoteException {
-        File file = new File(fileName);
-        int length = fileName.length();
+    public byte[] DownloadFileFromServer(String serverPath) throws RemoteException {
+        File serverFile = new File(serverPath);
+        int length = (int) serverFile.length();
         byte[] data = new byte[length];
+        FileInputStream fis;
         try {
-            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
-            bos.write(data, 0, data.length);
-            bos.flush();
-            bos.close();
-        } catch (Exception e) {
+            fis = new FileInputStream(serverFile);
+            fis.read(data, 0, length);
+        } catch (Exception e){
+            System.out.println("Exception "+e);
             e.printStackTrace();
         }
+        System.out.println("Downloaded from server!");
+        return data;
     }
 
 }

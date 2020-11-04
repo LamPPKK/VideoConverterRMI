@@ -4,7 +4,10 @@
  * and open the template in the editor.
  */
 package Controller;
+import Model.ConvertInterface;
+import Model.FileInterface;
 import java.io.*;
+import java.rmi.RemoteException;
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
 /**
@@ -23,7 +26,32 @@ public class MainController {
     public void ShowSelectedFile(JFileChooser choose,JTextField out){
         out.setText(choose.getSelectedFile().getPath());
     }
-    public void startConvert(File source,File target){
-        
+    public void startConvert(FileInterface file,ConvertInterface convert,File source,File target) throws RemoteException, FileNotFoundException, IOException{
+        int length=(int) source.length();
+//        System.out.println("File length: "+length);
+        byte[] dataUpload=new byte[length];
+        FileInputStream fis=new FileInputStream(source);
+        fis.read(dataUpload, 0, length);
+        fis.close();
+        String fileName=source.getName();
+//        System.out.println("File name : "+fileName);
+        String serverPath="C:\\Users\\DucVu\\Documents\\NetBeansProjects\\VideoConverterRMI\\VideoConverterRMI_Server\\Music"+"\\"+fileName.substring(0,fileName.lastIndexOf("."))+".mp4";
+//        System.out.println("Server path: " + serverPath);
+        //Upload File to server
+        System.out.println("Uploading...");
+        file.UploadFileToServer(dataUpload,serverPath);   
+        //Convert
+        System.out.println("Converting...");
+        convert.ConvertFromFile(source.getAbsolutePath(),serverPath);
+        //Download File from server
+        System.out.println("Downloading...");
+        byte[] data=file.DownloadFileFromServer(serverPath);
+        //Save
+        System.out.println("Saving...");
+        String savePath=target+"\\"+fileName.substring(0 ,fileName.lastIndexOf("."))+".mp3";
+        FileOutputStream fos=new FileOutputStream(new File(savePath));
+        fos.write(data,0, data.length);
+        fos.flush();
+        fos.close();
     }
 }

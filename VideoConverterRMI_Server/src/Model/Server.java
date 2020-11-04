@@ -5,28 +5,51 @@
  */
 package Model;
 
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.rmi.*;
 import java.rmi.server.*;
 import java.rmi.registry.*;
+import java.net.*;
+import java.io.*;
 
 /**
  *
  * @author Vu Minh Duc
  */
-public class Server {
+public class Server implements Runnable {
 
-    public static void main(String[] args) throws RemoteException, AlreadyBoundException {
-        try{
-            ConvertInterfaceImpl convertImpl = new ConvertInterfaceImpl();
-            FileInterfaceImpl fileImpl = new FileInterfaceImpl();
-            Registry registryFile = LocateRegistry.createRegistry(1099);
-            registryFile.bind("FileInterface",fileImpl);
-            System.out.println("Register FileImpl!");
-            Registry registryConvert=LocateRegistry.createRegistry(1098);
-            registryConvert.bind("ConvertInterface",convertImpl);
-            System.out.println("Register ConvertImpl!");
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+    ConvertInterfaceImpl convertImpl;
+    FileInterfaceImpl fileImpl;
+    RMIServerSocketFactory ssf;
+    ServerSocket server;
+
+    public Server() throws RemoteException, AlreadyBoundException, IOException {
+        convertImpl = new ConvertInterfaceImpl();
+        fileImpl = new FileInterfaceImpl();
+        ssf = new RMIServerSocketFactory() {
+            @Override
+            public ServerSocket createServerSocket(int port) throws IOException {
+                return new ServerSocket(port);
+            }
+        };
+        server=ssf.createServerSocket(3004);
+//        Registry registry = LocateRegistry.createRegistry(1099);
+//        UnicastRemoteObject.exportObject(fileImpl, 0, csf1, ssf1);
+//        UnicastRemoteObject.exportObject(convertImpl, 0, csf1, ssf1);
+        LocateRegistry.createRegistry(1099);
+        Naming.bind("rmi://localhost/file", fileImpl);
+        System.out.println("Register FileImpl!");
+        Naming.bind("rmi://localhost/convert", convertImpl);
+        System.out.println("Register ConvertImpl!");
+    }
+
+    public static void main(String[] args) throws IOException, RemoteException, AlreadyBoundException {
+        new Server().run();
+    }
+
+    @Override
+    public void run() {
+        System.out.println("Server started!");
     }
 }
