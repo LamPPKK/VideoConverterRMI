@@ -21,20 +21,23 @@ public class Client implements Runnable {
 
     MainView view;
     RMIClientSocketFactory scf;
+    Socket client;
     public ConvertInterface convertStub;
     public FileInterface fileStub;
 
 //    private Socket clientSocket;
-    public Client() throws RemoteException, NotBoundException {
-        Registry registry = LocateRegistry.getRegistry();
-        convertStub = (ConvertInterface) registry.lookup("ConvertInterface");
-        fileStub = (FileInterface) registry.lookup("FileInterface");
-        scf = new RMIClientSocketFactory() {
-            @Override
-            public Socket createSocket(String host, int port) throws IOException {
-                return new Socket(host, port);
-            }
-        };
+    public Client() throws RemoteException, NotBoundException, IOException {
+        fileStub = (FileInterface) Naming.lookup("rmi://localhost/file");
+        convertStub = (ConvertInterface) Naming.lookup("rmi://localhost/convert");
+        
+//        scf = new RMIClientSocketFactory() {
+//            @Override
+//            public Socket createSocket(String host, int port) throws IOException {
+//                return new Socket(host, port);
+//            }
+//        };
+//        client=scf.createSocket("localhost", 3004);
+
         view = new MainView();
         view.setClient(this);
     }
@@ -44,7 +47,29 @@ public class Client implements Runnable {
         view.setVisible(true);
     }
 
-    public static void main(String[] args) throws RemoteException, NotBoundException {
+    public MainView getView() {
+        return view;
+    }
 
+    public RMIClientSocketFactory getScf() {
+        return scf;
+    }
+
+    public Socket getClient() {
+        return client;
+    }
+
+    public ConvertInterface getConvertStub() {
+        return convertStub;
+    }
+
+    public FileInterface getFileStub() {
+        return fileStub;
+    }
+    
+//    public void sendFile()
+    
+    public static void main(String[] args) throws IOException, RemoteException, NotBoundException {
+        new Client().run();
     }
 }

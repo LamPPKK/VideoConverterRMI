@@ -14,9 +14,7 @@ import java.io.*;
  */
 public interface FileInterface extends Remote {
 
-    public byte[] DownloadFile(String fileName) throws RemoteException;
+    public void UploadFileToServer(byte[] data, String serverPath) throws RemoteException;
 
-    public void SendFile(String filePath) throws RemoteException;
-
-    public void SaveToFile(byte[] data, String fileName) throws RemoteException;
+    public byte[] DownloadFileFromServer(String serverPath) throws RemoteException;
 }

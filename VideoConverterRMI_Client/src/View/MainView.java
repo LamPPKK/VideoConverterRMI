@@ -7,6 +7,8 @@ package View;
 
 import Controller.MainController;
 import Model.Client;
+import Model.ConvertInterface;
+import Model.FileInterface;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -15,6 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.io.*;
+import java.rmi.RemoteException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -163,16 +166,13 @@ public class MainView extends javax.swing.JFrame implements Runnable {
     }//GEN-LAST:event_jComboBox1ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-        File source=chooseFile.getSelectedFile();
-        File target=chooseFolder.getSelectedFile();
-        try {   
-            System.out.println(source.getAbsolutePath());
-//            String fileServer= client.convertStub.ConvertFromFile(source.getAbsolutePath());           
-//            client.fileStub.SendFile(fileServer);
-//            byte[] data=client.fileStub.DownloadFile(fileServer);
-//            client.fileStub.SaveToFile(data, target.getAbsolutePath());
-        } catch (Exception e) {
+        try {
+//            System.out.println("Button action");
+            FileInterface fileInterface=client.getFileStub();
+            ConvertInterface convertInterface=client.getConvertStub();
+            control.startConvert(fileInterface, convertInterface, control.GetSelectedFile(chooseFile),control.GetSelectedFile(chooseFolder));
+        } catch (Exception e){
+            System.out.println("Exception "+e);
             e.printStackTrace();
         }
     }//GEN-LAST:event_jButton1ActionPerformed
