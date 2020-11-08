@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Model;
+package Interface;
 
 import java.rmi.*;
 import java.io.*;
@@ -14,7 +14,7 @@ import java.io.*;
  */
 public interface ConvertInterface extends Remote {
 
-    public void ConvertFromFile(String source,String target) throws RemoteException;
+    public long ConvertFromFile(String source,String target) throws RemoteException;
 
     public byte[] ConvertFromYT(String link) throws RemoteException;
 }

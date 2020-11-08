@@ -6,9 +6,11 @@
 package View;
 
 import Controller.MainController;
-import Model.Client;
-import Model.ConvertInterface;
-import Model.FileInterface;
+import Client.Client;
+import Interface.ConvertInterface;
+import Interface.FileInterface;
+import com.healthmarketscience.rmiio.GZIPRemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStreamServer;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -25,17 +27,21 @@ import java.util.logging.Logger;
  *
  * @author Vu Minh Duc
  */
-public class MainView extends javax.swing.JFrame implements Runnable {
+public class MainView extends javax.swing.JFrame {
+
     private MainController control;
     private JFileChooser chooseFile;
     private JFileChooser chooseFolder;
     private Client client;
+
     /**
      * Creates new form MainView
      */
     public MainView() {
         initComponents();
-        control=new MainController();
+        control = new MainController();
+        this.setResizable(false);
+        this.setLocation(500, 200);
     }
 
     /**
@@ -56,6 +62,11 @@ public class MainView extends javax.swing.JFrame implements Runnable {
         jTextField2 = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel1.setForeground(new java.awt.Color(255, 255, 255));
+        jPanel1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        jPanel1.setFont(new java.awt.Font("Tahoma", 1, 10)); // NOI18N
 
         jLabel1.setFont(new java.awt.Font("Verdana", 1, 18)); // NOI18N
         jLabel1.setText("Video Converter");
@@ -97,9 +108,7 @@ public class MainView extends javax.swing.JFrame implements Runnable {
                         .addComponent(jLabel1))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(229, 229, 229)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton2)
-                            .addComponent(jButton1))))
+                        .addComponent(jButton1)))
                 .addContainerGap(204, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
@@ -111,7 +120,10 @@ public class MainView extends javax.swing.JFrame implements Runnable {
                         .addGap(136, 136, 136))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(224, 224, 224))))
+                        .addGap(224, 224, 224))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(jButton2)
+                        .addGap(233, 233, 233))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -135,47 +147,15 @@ public class MainView extends javax.swing.JFrame implements Runnable {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
-        // TODO add your handling code here:
-        int choose = jComboBox1.getSelectedIndex();
-//        System.out.println("Da chon " + choose);
-        switch (choose) {
-            case 0:
-                chooseFile = new JFileChooser();
-                chooseFile.setMultiSelectionEnabled(false);
-                chooseFile.setDialogTitle("Choose file to convert");
-                chooseFile.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                chooseFile.setSize(500, 500);
-                chooseFile.showOpenDialog(new JFrame());
-                control.ShowSelectedFile(chooseFile, jTextField1);
-                break;
-            case 1:
-
-                break;
-        }
-    }//GEN-LAST:event_jComboBox1ActionPerformed
-
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        try {
-//            System.out.println("Button action");
-            FileInterface fileInterface=client.getFileStub();
-            ConvertInterface convertInterface=client.getConvertStub();
-            control.startConvert(fileInterface, convertInterface, control.GetSelectedFile(chooseFile),control.GetSelectedFile(chooseFolder));
-        } catch (Exception e){
-            System.out.println("Exception "+e);
-            e.printStackTrace();
-        }
-    }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
@@ -188,10 +168,51 @@ public class MainView extends javax.swing.JFrame implements Runnable {
         control.ShowSelectedFile(chooseFolder, jTextField2);
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        try {
+            //            System.out.println("Button action");
+            FileInterface fileInterface = client.getFileStub();
+            ConvertInterface convertInterface = client.getConvertStub();
+            int choose = jComboBox1.getSelectedIndex();
+            switch (choose) {
+                case 0:
+                RemoteInputStreamServer riss=new GZIPRemoteInputStream(new BufferedInputStream(new FileInputStream(control.GetSelectedFile(chooseFile))));
+                client.setRiss(riss);
+                control.Convert1(riss,fileInterface, convertInterface, control.GetSelectedFile(chooseFile), control.GetSelectedFile(chooseFolder));
+                break;
+                case 1:
+                control.Convert2(fileInterface, convertInterface, jTextField1.getText(), control.GetSelectedFile(chooseFolder));
+                break;
+            }
+        } catch (Exception e) {
+            System.out.println("Exception " + e);
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
+        // TODO add your handling code here:
+        int choose = jComboBox1.getSelectedIndex();
+        //        System.out.println("Da chon " + choose);
+        switch (choose) {
+            case 0:
+            chooseFile = new JFileChooser();
+            chooseFile.setMultiSelectionEnabled(false);
+            chooseFile.setDialogTitle("Choose file to convert");
+            chooseFile.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            chooseFile.setSize(500, 500);
+            chooseFile.showOpenDialog(new JFrame());
+            control.ShowSelectedFile(chooseFile, jTextField1);
+            break;
+            case 1:
+            jTextField1.setEditable(true);
+            break;
+        }
+    }//GEN-LAST:event_jComboBox1ActionPerformed
+
     /**
      * @param args the command line arguments
      */
-
     public JButton getjButton1() {
         return jButton1;
     }
@@ -256,8 +277,7 @@ public class MainView extends javax.swing.JFrame implements Runnable {
         this.jTextField2 = jTextField2;
     }
 
-    
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
@@ -268,8 +288,7 @@ public class MainView extends javax.swing.JFrame implements Runnable {
     private javax.swing.JTextField jTextField2;
     // End of variables declaration//GEN-END:variables
 
-    @Override
-    public void run() {
+    public static void main(String[] args) {
         new MainView().setVisible(true);
     }
 }

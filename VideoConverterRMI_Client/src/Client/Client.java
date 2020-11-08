@@ -3,15 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Model;
+package Client;
 
+import Interface.FileInterface;
+import Interface.ConvertInterface;
 import View.MainView;
+import com.healthmarketscience.rmiio.RemoteInputStreamServer;
 import java.io.*;
 import java.util.*;
 import java.rmi.*;
 import java.rmi.registry.*;
 import java.net.*;
-import java.rmi.server.RMIClientSocketFactory;
 
 /**
  *
@@ -20,28 +22,30 @@ import java.rmi.server.RMIClientSocketFactory;
 public class Client implements Runnable {
 
     MainView view;
-    RMIClientSocketFactory scf;
     Socket client;
     public ConvertInterface convertStub;
     public FileInterface fileStub;
+    public RemoteInputStreamServer riss;
 
 //    private Socket clientSocket;
     public Client() throws RemoteException, NotBoundException, IOException {
         fileStub = (FileInterface) Naming.lookup("rmi://localhost/file");
         convertStub = (ConvertInterface) Naming.lookup("rmi://localhost/convert");
-        
-//        scf = new RMIClientSocketFactory() {
-//            @Override
-//            public Socket createSocket(String host, int port) throws IOException {
-//                return new Socket(host, port);
-//            }
-//        };
-//        client=scf.createSocket("localhost", 3004);
-
         view = new MainView();
         view.setClient(this);
+//        LocateRegistry.createRegistry(1098);
     }
 
+    public RemoteInputStreamServer getRiss() {
+        return riss;
+    }
+
+    public void setRiss(RemoteInputStreamServer riss) throws RemoteException {
+        this.riss = riss;
+    }
+
+    
+    
     @Override
     public void run() {
         view.setVisible(true);
@@ -51,9 +55,6 @@ public class Client implements Runnable {
         return view;
     }
 
-    public RMIClientSocketFactory getScf() {
-        return scf;
-    }
 
     public Socket getClient() {
         return client;

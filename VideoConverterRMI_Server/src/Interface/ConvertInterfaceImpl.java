@@ -1,10 +1,12 @@
+package Interface;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Model;
 
+import Interface.ConvertInterface;
 import it.sauronsoftware.jave.AudioAttributes;
 import it.sauronsoftware.jave.Encoder;
 import it.sauronsoftware.jave.EncodingAttributes;
@@ -27,7 +29,7 @@ public class ConvertInterfaceImpl extends UnicastRemoteObject implements Convert
     }
 
     @Override
-    public void ConvertFromFile(String source,String target) throws RemoteException{
+    public long ConvertFromFile(String source, String target) throws RemoteException {
 
         Encoder forMusic = new Encoder();
         //audioAttribute obj
@@ -42,7 +44,7 @@ public class ConvertInterfaceImpl extends UnicastRemoteObject implements Convert
         specifications.setFormat("mp3");
         specifications.setAudioAttributes(audio);
         File fileS = new File(source);
-        File fileT=new File(target);
+        File fileT = new File(target);
 //        String fileName = source.getName();
 //            System.out.println(source.getAbsolutePath().toString());
 //        String folder = "C:\\Users\\Vu Minh Duc\\Documents\\NetBeansProjects\\VideoConverterRMI\\VideoConverterRMI_Server\\Music";
@@ -51,12 +53,12 @@ public class ConvertInterfaceImpl extends UnicastRemoteObject implements Convert
         try {
 //            System.out.println(folder + "\\" + fileName.substring(0, fileName.lastIndexOf(".")) + ".mp3");
 //            System.out.println(target.getAbsolutePath());
-            forMusic.encode(fileS,fileT, specifications);
+            forMusic.encode(fileS, fileT, specifications);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("Convert Done!");
-
+//        System.out.println("Convert Done!");
+        return fileT.length();
     }
 
     @Override
