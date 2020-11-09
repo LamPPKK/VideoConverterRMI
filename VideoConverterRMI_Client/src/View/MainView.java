@@ -6,9 +6,9 @@
 package View;
 
 import Controller.MainController;
-import Model.Client;
-import Model.ConvertInterface;
-import Model.FileInterface;
+import Client.Client;
+import Interface.ConvertInterface;
+import Interface.FileInterface;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
