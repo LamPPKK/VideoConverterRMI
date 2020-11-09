@@ -5,6 +5,7 @@
  */
 package Interface;
 
+import com.healthmarketscience.rmiio.RemoteInputStream;
 import java.rmi.*;
 import java.io.*;
 
@@ -14,7 +15,7 @@ import java.io.*;
  */
 public interface FileInterface extends Remote {
 
-    public void UploadFileToServer(byte[] data, String serverPath) throws RemoteException;
+    public void UploadFileToServer(RemoteInputStream ris,String serverPath, long length) throws RemoteException;
 
-    public byte[] DownloadFileFromServer(String serverPath) throws RemoteException;
+    public RemoteInputStream DownloadFileFromServer(String serverPath) throws RemoteException;
 }

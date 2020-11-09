@@ -1,11 +1,17 @@
+package Interface;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Interface;
+
 
 import Interface.FileInterface;
+import com.healthmarketscience.rmiio.GZIPRemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStreamClient;
+import com.healthmarketscience.rmiio.RemoteInputStreamServer;
 import java.rmi.*;
 import java.rmi.server.UnicastRemoteObject;
 import java.io.*;
@@ -23,36 +29,49 @@ public class FileInterfaceImpl extends UnicastRemoteObject implements FileInterf
     }
 
     @Override
-    public void UploadFileToServer(byte[] data, String serverPath) throws RemoteException {
-        File serverFile = new File(serverPath);
-        FileOutputStream fos;
+    public void UploadFileToServer(RemoteInputStream ris,String serverPath,long length) throws RemoteException {
         try {
-            fos = new FileOutputStream(serverFile);
-            fos.write(data);
-            fos.flush();
-            fos.close();
-        } catch (Exception e) {
-            System.out.println("Exception " + e);
-            e.printStackTrace();
-        }
-        System.out.println("Uploaded to server!");
-    }
-
-    @Override
-    public byte[] DownloadFileFromServer(String serverPath) throws RemoteException {
-        File serverFile = new File(serverPath);
-        int length = (int) serverFile.length();
-        byte[] data = new byte[length];
-        FileInputStream fis;
-        try {
-            fis = new FileInputStream(serverFile);
-            fis.read(data, 0, length);
+            int buffer=1024*64;
+            int current=0;
+            int size;
+            InputStream is=RemoteInputStreamClient.wrap(ris);
+            BufferedInputStream bis=new BufferedInputStream(is);
+            BufferedOutputStream bos=new BufferedOutputStream(new FileOutputStream(new File(serverPath)));
+            while(current!=length){
+                if(length-current>=buffer) size=buffer;
+                else size=(int) length-current;
+                byte[] data=new byte[size];
+                bis.read(data,0,data.length);
+                bos.write(data);
+                bos.flush();
+                current+=size;
+            }
+            bos.close();
+            ris.close(true);
+            System.out.println("Client has uploaded file to server !");
         } catch (Exception e){
             System.out.println("Exception "+e);
             e.printStackTrace();
         }
-        System.out.println("Downloaded from server!");
-        return data;
     }
+
+    @Override
+    public RemoteInputStream DownloadFileFromServer(String serverPath) throws RemoteException {
+        System.out.println("Client start to download!");
+        RemoteInputStreamServer riss = null;
+        RemoteInputStream ris = null;
+        try{
+            riss=new GZIPRemoteInputStream(new BufferedInputStream(new FileInputStream(new File(serverPath))));
+            ris=riss.export();
+            riss=null;
+        } catch (Exception e){
+            System.out.println("Exception "+e);
+            e.printStackTrace();
+        } finally {
+            if(riss!=null) riss.close();
+        }
+        return ris;
+    }
+
 
 }
