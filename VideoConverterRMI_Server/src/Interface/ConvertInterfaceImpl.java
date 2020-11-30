@@ -1,10 +1,9 @@
-package Interface;
-
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+package Interface;
 
 import Interface.ConvertInterface;
 import it.sauronsoftware.jave.AudioAttributes;
@@ -29,7 +28,7 @@ public class ConvertInterfaceImpl extends UnicastRemoteObject implements Convert
     }
 
     @Override
-    public long ConvertFromFile(String source, String target) throws RemoteException {
+    public long ConvertFromFile(String source,String target) throws RemoteException{
 
         Encoder forMusic = new Encoder();
         //audioAttribute obj
@@ -46,11 +45,11 @@ public class ConvertInterfaceImpl extends UnicastRemoteObject implements Convert
         File fileS = new File(source);
         File fileT=new File(target);
         try {
-            forMusic.encode(fileS, fileT, specifications);
+            forMusic.encode(fileS,fileT, specifications);
         } catch (Exception e) {
             e.printStackTrace();
         }
-//        System.out.println("Convert Done!");
+        System.out.println("Convert Done!");
         return fileT.length();
     }
 

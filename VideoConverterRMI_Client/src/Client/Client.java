@@ -8,7 +8,6 @@ package Client;
 import Interface.FileInterface;
 import Interface.ConvertInterface;
 import View.MainView;
-import com.healthmarketscience.rmiio.RemoteInputStreamServer;
 import java.io.*;
 import java.util.*;
 import java.rmi.*;
@@ -25,7 +24,6 @@ public class Client implements Runnable {
     Socket client;
     public ConvertInterface convertStub;
     public FileInterface fileStub;
-    public RemoteInputStreamServer riss;
 
 //    private Socket clientSocket;
     public Client() throws RemoteException, NotBoundException, IOException {
@@ -33,19 +31,8 @@ public class Client implements Runnable {
         convertStub = (ConvertInterface) Naming.lookup("rmi://localhost/convert");
         view = new MainView();
         view.setClient(this);
-//        LocateRegistry.createRegistry(1098);
     }
 
-    public RemoteInputStreamServer getRiss() {
-        return riss;
-    }
-
-    public void setRiss(RemoteInputStreamServer riss) throws RemoteException {
-        this.riss = riss;
-    }
-
-    
-    
     @Override
     public void run() {
         view.setVisible(true);

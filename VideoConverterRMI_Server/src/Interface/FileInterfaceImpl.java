@@ -1,17 +1,12 @@
-package Interface;
-
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+package Interface;
 
-
+import Flag.Flag;
 import Interface.FileInterface;
-import com.healthmarketscience.rmiio.GZIPRemoteInputStream;
-import com.healthmarketscience.rmiio.RemoteInputStream;
-import com.healthmarketscience.rmiio.RemoteInputStreamClient;
-import com.healthmarketscience.rmiio.RemoteInputStreamServer;
 import java.rmi.*;
 import java.rmi.server.UnicastRemoteObject;
 import java.io.*;
@@ -28,50 +23,60 @@ public class FileInterfaceImpl extends UnicastRemoteObject implements FileInterf
     public FileInterfaceImpl() throws RemoteException {
     }
 
+    public String mergeFileInServer(String songName, int ep) throws FileNotFoundException, IOException {
+        String folderPathServer = "C:\\Users\\DucVu\\Documents\\NetBeansProjects\\VideoConverterRMI_Demo1\\VideoConverterRMI_Server\\Music";
+        String serverPathMp4 = folderPathServer + "\\" + songName + ".mp4";
+        FileOutputStream fos = new FileOutputStream(new File(serverPathMp4));
+        long current = 0;
+        for (int i = 1; i <= ep; i++) {
+            String fileName = folderPathServer + "\\" + songName + "_EP" + i + ".mp4";
+            File file = new File(fileName);
+//            int size =(int) file.length();
+//            byte[] data = new byte[size];
+            FileInputStream fis = new FileInputStream(file);
+            byte[] data=fis.readAllBytes();
+//            size=fis.read(data, 0, size);
+            current += data.length;
+            fis.close();
+            fos.write(data);
+            System.out.println("Current " + current + " Kich thuoc them" + data.length);
+        }
+        fos.close();
+        System.out.println("Merge done !");
+        return serverPathMp4;
+    }
+
     @Override
-    public void UploadFileToServer(RemoteInputStream ris,String serverPath,long length) throws RemoteException {
+    public void UploadFileToServer(byte[] data, String serverPath) throws RemoteException {
+        File serverFile = new File(serverPath);
+        FileOutputStream fos;
         try {
-            int buffer=1024*64;
-            int current=0;
-            int size;
-            InputStream is=RemoteInputStreamClient.wrap(ris);
-            BufferedInputStream bis=new BufferedInputStream(is);
-            BufferedOutputStream bos=new BufferedOutputStream(new FileOutputStream(new File(serverPath)));
-            while(current!=length){
-                if(length-current>=buffer) size=buffer;
-                else size=(int) length-current;
-                byte[] data=new byte[size];
-                bis.read(data,0,data.length);
-                bos.write(data);
-                bos.flush();
-                current+=size;
-            }
-            bos.close();
-            ris.close(true);
-            System.out.println("Client has uploaded file to server !");
-        } catch (Exception e){
-            System.out.println("Exception "+e);
+            fos = new FileOutputStream(serverFile);
+            fos.write(data);
+            fos.flush();
+            fos.close();
+//            flag.setValue();
+        } catch (Exception e) {
+            System.out.println("Exception " + e);
             e.printStackTrace();
         }
     }
 
     @Override
-    public RemoteInputStream DownloadFileFromServer(String serverPath) throws RemoteException {
-        System.out.println("Client start to download!");
-        RemoteInputStreamServer riss = null;
-        RemoteInputStream ris = null;
+    public byte[] DownloadFileFromServer(String serverPath,long current, int length) throws RemoteException {
+        byte[] data=new byte[length];
         try{
-            riss=new GZIPRemoteInputStream(new BufferedInputStream(new FileInputStream(new File(serverPath))));
-            ris=riss.export();
-            riss=null;
-        } catch (Exception e){
+            File file=new File(serverPath);
+            FileInputStream fis=new FileInputStream(file);
+            fis.skip(current);
+            fis.read(data,0,length);
+            fis.close();
+        }
+        catch(Exception e){
             System.out.println("Exception "+e);
             e.printStackTrace();
-        } finally {
-            if(riss!=null) riss.close();
-        }
-        return ris;
+        } 
+        return data;
     }
-
 
 }

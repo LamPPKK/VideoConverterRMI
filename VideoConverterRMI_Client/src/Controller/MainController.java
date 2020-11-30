@@ -5,15 +5,13 @@
  */
 package Controller;
 
+import Flag.Flag;
 import Interface.ConvertInterface;
 import Interface.FileInterface;
-
-import com.healthmarketscience.rmiio.GZIPRemoteInputStream;
-import com.healthmarketscience.rmiio.RemoteInputStream;
-import com.healthmarketscience.rmiio.RemoteInputStreamClient;
-import com.healthmarketscience.rmiio.RemoteInputStreamServer;
 import java.io.*;
 import java.rmi.RemoteException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
 
@@ -37,58 +35,110 @@ public class MainController {
         out.setText(choose.getSelectedFile().getPath());
     }
 
-    public void Convert1(RemoteInputStreamServer riss, FileInterface file, ConvertInterface convert, File source, File target) throws RemoteException, FileNotFoundException, IOException {
-//        System.out.println("Ham convert1");
-
-//        int bufferSize = 1024 * 64;
-        String fileName = source.getName();
-        String savePath = target + "\\" + fileName.substring(0, fileName.lastIndexOf(".")) + ".mp3";
-        String serverPathMp4 = "C:\\Users\\DucVu\\Documents\\NetBeansProjects\\VideoConverterRMI_Real\\VideoConverterRMI_Server\\Music" + "\\" + fileName.substring(0, fileName.lastIndexOf(".")) + ".mp4";
-        String serverPathMp3 = "C:\\Users\\DucVu\\Documents\\NetBeansProjects\\VideoConverterRMI_Real\\VideoConverterRMI_Server\\Music" + "\\" + fileName.substring(0, fileName.lastIndexOf(".")) + ".mp3";
-        long length=source.length();
-        //Upload file to server 
-        try {
-            file.UploadFileToServer(riss.export(), serverPathMp4, length);
-            System.out.println("Upload done!");
-        } catch (Exception e) {
-            System.out.println("Exception " + e);
-            e.printStackTrace();
-        } finally {
-            if (riss != null) {
-                riss.close();
-            }
-        }
-
-        // Convert 
+    public void startConvert(FileInterface file, ConvertInterface convert, File source, File target) throws RemoteException, FileNotFoundException, IOException {
         
-        length = convert.ConvertFromFile(serverPathMp4, serverPathMp3);
-        int current=0;     
-        //Download File from server
-        System.out.println("Downloading...");
-        String clientPathMp4="C:\\Users\\DucVu\\Documents\\NetBeansProjects\\VideoConverterRMI_Real\\VideoConverterRMI_Client\\Music"+ "\\" + fileName.substring(0, fileName.lastIndexOf(".")) + ".mp4";
-        int buffer=1024*64;
-        int size;
-        RemoteInputStream ris = file.DownloadFileFromServer(serverPathMp3);
-        InputStream is = RemoteInputStreamClient.wrap(ris);
-        BufferedInputStream bis = new BufferedInputStream(is);
-        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(new File(savePath)));
+        long length = source.length();
+        long current = 0;
+        int buffer = 1024 * 64;
+        int ep = 0;
+        Flag[] flag = new Flag[10000];
+        String fileName = source.getName();
+        String folderPathServer = "C:\\Users\\DucVu\\Documents\\NetBeansProjects\\VideoConverterRMI_Demo1\\VideoConverterRMI_Server\\Music";
+        String songName = fileName.substring(0, fileName.lastIndexOf("."));
+        String serverPathMp3 = folderPathServer + "\\" + songName + ".mp3";
+        byte[] dataUpload;
+        //Upload file to server
+        FileInputStream fis = new FileInputStream(source);
         while (current != length) {
-            if (length - current >= buffer) {
-                size = buffer;
+            if (length - current > buffer) {
+                ep++;
+                flag[ep] = new Flag();
+                dataUpload = new byte[buffer];
+                int size = fis.read(dataUpload, 0, buffer);
+                current += buffer;
+                String path = folderPathServer + "\\" + songName + "_EP" + ep + ".mp4";
+                FileThreadUpload fThread = new FileThreadUpload(file, path, dataUpload, flag[ep]);
+                fThread.start();
+                System.out.println("Sending " + (float) (current * 100 / length) + "% !" + "Current : " + current + "  Size " + size);
             } else {
-                size = (int) length - current;
+                ep++;
+                flag[ep] = new Flag();
+                int size = (int) (length - current);
+                dataUpload = new byte[size];
+                fis.read(dataUpload, 0, size);
+                fis.close();
+                current = length;
+                String path = folderPathServer + "\\" + songName + "_EP" + ep + ".mp4";
+                FileThreadUpload fThread = new FileThreadUpload(file, path, dataUpload, flag[ep]);
+                fThread.start();
+                System.out.println("Sending 100% ! " + "Current " + current);
             }
-            byte[] data = new byte[size];
-            bis.read(data, 0, data.length);
-            bos.write(data);
-            bos.flush();
-            current += size;
         }
-        bos.close();
-        System.out.println("Download suscess ! File saved in "+savePath);
-    }
 
-    public void Convert2(FileInterface file, ConvertInterface convert, String link, File savePath) {
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
+        //Merge file
+        System.out.println("Start merge");
+        String serverPathMp4 = file.mergeFileInServer(songName, ep);
+        System.out.println("Merge done!");
+        //Convert
+        System.out.println("Start convert!");
+        length = convert.ConvertFromFile(serverPathMp4, serverPathMp3);
+        System.out.println("Convert done!");
+        //Download File from server
+
+        System.out.println("Start download!");
+        current = 0;
+        ep = 0;
+        System.out.println("Length : "+length );
+        System.out.println("Current : "+current);
+        byte[] dataDownload;
+        String folderPathClient = "C:\\Users\\DucVu\\Documents\\NetBeansProjects\\VideoConverterRMI_Demo1\\VideoConverterRMI_Client\\Music";
+        while (current != length) {
+            if (length - current > buffer) {
+                ep++;
+                dataDownload = new byte[buffer];
+                current += buffer;
+                String path = folderPathClient + "\\" + songName + "_EP" + ep + ".mp3";
+                FileThreadDownload fThread = new FileThreadDownload(file, serverPathMp3, path, current, buffer);
+                fThread.start();
+                System.out.println("Download " + (float) (current * 100 / length) + "% !" + "Current : " + current + "  Size " + buffer);
+            } else {
+                ep++;
+                int size = (int) (length - current);
+                dataDownload = new byte[size];
+                current = length;
+                String path = folderPathClient + "\\" + songName + "_EP" + ep + ".mp3";
+                FileThreadDownload fThread = new FileThreadDownload(file, serverPathMp3, path, current, buffer);
+                fThread.start();
+                System.out.println("Download 100% ! " + "Current " + current);
+            }
+        }
+        try {
+            Thread.sleep(500);
+        } catch (Exception e){
+            System.out.println("Exception "+e);
+            e.printStackTrace();
+        }
+        //Save
+        System.out.println("Saving...");
+        String savePath = target + "\\" + songName + ".mp3";
+        FileOutputStream fos = new FileOutputStream(new File(savePath));
+        for(int i=1;i<=ep;i++){
+            String filePath=folderPathClient+"\\"+songName+"_EP"+i+".mp3";
+            File filePart=new File(filePath);
+            int size=(int) filePart.length();
+            byte[] dataSave=new byte[size];
+            fis=new FileInputStream(filePart);
+            fis.read(dataSave, 0,size );
+            fis.close();
+            fos.write(dataSave);
+        }
+        fos.close();
+        System.out.println("Saved in " + savePath);
     }
 }
