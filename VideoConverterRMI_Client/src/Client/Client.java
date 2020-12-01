@@ -27,8 +27,8 @@ public class Client implements Runnable {
 
 //    private Socket clientSocket;
     public Client() throws RemoteException, NotBoundException, IOException {
-        fileStub = (FileInterface) Naming.lookup("rmi://localhost/file");
-        convertStub = (ConvertInterface) Naming.lookup("rmi://localhost/convert");
+        fileStub = (FileInterface) Naming.lookup("rmi://192.168.43.41/file");
+        convertStub = (ConvertInterface) Naming.lookup("rmi://192.168.43.41/convert");
         view = new MainView();
         view.setClient(this);
     }

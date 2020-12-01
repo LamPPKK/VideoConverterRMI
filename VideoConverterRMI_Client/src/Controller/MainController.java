@@ -43,7 +43,7 @@ public class MainController {
         int ep = 0;
         Flag[] flag = new Flag[10000];
         String fileName = source.getName();
-        String folderPathServer = "C:\\Users\\DucVu\\Documents\\NetBeansProjects\\VideoConverterRMI_Demo1\\VideoConverterRMI_Server\\Music";
+        String folderPathServer = "G:\\Java\\VideoConverterRMI\\VideoConverterRMI_Server\\Music";
         String songName = fileName.substring(0, fileName.lastIndexOf("."));
         String serverPathMp3 = folderPathServer + "\\" + songName + ".mp3";
         byte[] dataUpload;
@@ -76,7 +76,7 @@ public class MainController {
         }
 
         try {
-            Thread.sleep(500);
+            Thread.sleep(10000);
         } catch (InterruptedException ex) {
             Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
         }

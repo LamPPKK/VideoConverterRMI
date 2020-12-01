@@ -6,6 +6,7 @@
 package Interface;
 
 import Interface.ConvertInterface;
+import Server.YoutubeDownloader;
 import it.sauronsoftware.jave.AudioAttributes;
 import it.sauronsoftware.jave.Encoder;
 import it.sauronsoftware.jave.EncodingAttributes;
@@ -54,8 +55,10 @@ public class ConvertInterfaceImpl extends UnicastRemoteObject implements Convert
     }
 
     @Override
-    public byte[] ConvertFromYT(String link) throws RemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public Object[] ConvertFromYT(String link) throws RemoteException {
+        YoutubeDownloader ytDL = new YoutubeDownloader();
+        Object[] res=ytDL.Download(link);
+        return res;
     }
-
+    
 }
