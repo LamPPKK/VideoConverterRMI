@@ -19,6 +19,7 @@ import java.util.logging.Logger;
  * @author DucVu
  */
 public class FileThreadDownload extends Thread{
+    Flag flag;
     FileInterface fileInterface;
     String serverPath;
     String clientPath;
@@ -26,12 +27,13 @@ public class FileThreadDownload extends Thread{
     int length;
     byte[] data;
 
-    public FileThreadDownload(FileInterface fileInterface, String serverPath, String clientPath, long current, int length) {
+    public FileThreadDownload(FileInterface fileInterface, String serverPath, String clientPath, long current, int length, Flag flag) {
         this.fileInterface = fileInterface;
         this.serverPath = serverPath;
         this.clientPath = clientPath;
         this.current = current;
         this.length = length;
+        this.flag=flag;
     }
 
     
@@ -45,6 +47,7 @@ public class FileThreadDownload extends Thread{
                 fos = new FileOutputStream(file);
                 fos.write(data);
                 fos.close();
+                flag.setValue();
             } catch (Exception e){
                 System.out.println("Exception "+e);
                 e.printStackTrace();

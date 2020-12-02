@@ -56,8 +56,5 @@ public class Client implements Runnable {
     }
     
 //    public void sendFile()
-    
-    public static void main(String[] args) throws IOException, RemoteException, NotBoundException {
-        new Client().run();
-    }
+
 }
