@@ -5,7 +5,6 @@
  */
 package Interface;
 
-import YTDownloader.*;
 import java.io.InputStream;
 import java.io.OutputStream;
 class SyncPipe implements Runnable{

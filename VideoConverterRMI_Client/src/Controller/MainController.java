@@ -10,6 +10,7 @@ import Interface.ConvertInterface;
 import Interface.FileInterface;
 import java.io.*;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
@@ -41,7 +42,7 @@ public class MainController {
         long current = 0;
         int buffer = 1024 * 64;
         int ep = 0;
-        Flag[] flag = new Flag[10000];
+        ArrayList<Flag> arrF = new ArrayList<Flag>();
         String fileName = source.getName();
         String folderPathServer = "C:\\Users\\DucVu\\Documents\\NetBeansProjects\\VideoConverterRMI\\VideoConverterRMI_Server\\Music";
         String songName = fileName.substring(0, fileName.lastIndexOf("."));
@@ -52,39 +53,48 @@ public class MainController {
         while (current != length) {
             if (length - current > buffer) {
                 ep++;
-                flag[ep] = new Flag();
+                Flag tmp = new Flag();
+                arrF.add(tmp);
                 dataUpload = new byte[buffer];
                 int size = fis.read(dataUpload, 0, buffer);
                 current += buffer;
                 String path = folderPathServer + "\\" + songName + "_EP" + ep + ".mp4";
-                FileThreadUpload fThread = new FileThreadUpload(file, path, dataUpload, flag[ep]);
+                FileThreadUpload fThread = new FileThreadUpload(file, path, dataUpload, tmp);
                 fThread.start();
                 System.out.println("Sending " + (float) (current * 100 / length) + "% !" + "Current : " + current + "  Size " + size);
             } else {
                 ep++;
-                flag[ep] = new Flag();
+                Flag tmp = new Flag();
+                arrF.add(tmp);
                 int size = (int) (length - current);
                 dataUpload = new byte[size];
                 fis.read(dataUpload, 0, size);
                 fis.close();
                 current = length;
                 String path = folderPathServer + "\\" + songName + "_EP" + ep + ".mp4";
-                FileThreadUpload fThread = new FileThreadUpload(file, path, dataUpload, flag[ep]);
+                FileThreadUpload fThread = new FileThreadUpload(file, path, dataUpload, tmp);
                 fThread.start();
                 System.out.println("Sending 100% ! " + "Current " + current);
             }
         }
-
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
+        
+        boolean dk = true;
+        while(dk){
+            int dem=0;
+            for(int i=0;i<arrF.size();i++){
+                if(arrF.get(i).getValue()==true) dem++;
+            }
+            if(dem==ep) dk=false;
         }
-
+        
+        arrF.clear();
+        
         //Merge file
         System.out.println("Start merge");
         String serverPathMp4 = file.mergeFileInServer(songName, ep);
         System.out.println("Merge done!");
+        
+        
         //Convert
         System.out.println("Start convert!");
         length = convert.ConvertFromFile(serverPathMp4, serverPathMp3);
@@ -100,31 +110,41 @@ public class MainController {
         while (current != length) {
             if (length - current > buffer) {
                 ep++;
+                Flag tmp = new Flag();
+                arrF.add(tmp);
                 current += buffer;
                 String path = folderPathClient + "\\" + songName + "_EP" + ep + ".mp3";
-                FileThreadDownload fThread = new FileThreadDownload(file, serverPathMp3, path, current, buffer);
+                FileThreadDownload fThread = new FileThreadDownload(file, serverPathMp3, path, current, buffer, tmp);
                 fThread.start();
                 System.out.println("Download " + (float) (current * 100 / length) + "% !" + "Current : " + current + "  Size " + buffer);
             } else {
                 ep++;
+                Flag tmp = new Flag();
+                arrF.add(tmp);
                 int size = (int) (length - current);
                 current = length;
                 String path = folderPathClient + "\\" + songName + "_EP" + ep + ".mp3";
-                FileThreadDownload fThread = new FileThreadDownload(file, serverPathMp3, path, current, size);
+                FileThreadDownload fThread = new FileThreadDownload(file, serverPathMp3, path, current, size, tmp);
                 fThread.start();
                 System.out.println("Download 100% ! " + "Current " + current);
             }
         }
-        try {
-            Thread.sleep(500);
-        } catch (Exception e) {
-            System.out.println("Exception " + e);
-            e.printStackTrace();
+        
+        
+        dk = true;
+        while(dk){
+            int dem=0;
+            for(int i=0;i<arrF.size();i++){
+                if(arrF.get(i).getValue()==true) dem++;
+            }
+            if(dem==ep) dk=false;
         }
+        
         //Save
         System.out.println("Saving...");
         String savePath = target + "\\" + songName + ".mp3";
-        FileOutputStream fos = new FileOutputStream(new File(savePath));
+        File save = new File(savePath);
+        FileOutputStream fos = new FileOutputStream(save);
         for (int i = 1; i <= ep; i++) {
             String filePath = folderPathClient + "\\" + songName + "_EP" + i + ".mp3";
             File filePart = new File(filePath);
@@ -136,11 +156,13 @@ public class MainController {
             fos.write(dataSave);
         }
         fos.close();
-        System.out.println("Saved in " + savePath);
+        System.out.println("Saved in " + save.getPath().toString());
+
     }
 
     public void startConvertFromLinkYT(FileInterface file, ConvertInterface convert, String url, String folder) throws RemoteException, FileNotFoundException, IOException {
-
+        ArrayList<Flag> arrF = new ArrayList<Flag>();
+        
         long current = 0, length = 0;
         int buffer = 1024 * 64;
         System.out.println("SaveFolder : " + folder);
@@ -158,27 +180,36 @@ public class MainController {
         while (current != length) {
             if (length - current > buffer) {
                 ep++;
+                Flag tmp = new Flag();
+                arrF.add(tmp);
                 current += buffer;
                 String path = folderClient + "\\" + songName + "_EP" + ep + ".mp3";
-                FileThreadDownload fThread = new FileThreadDownload(file, serverPath, path, current, buffer);
+                FileThreadDownload fThread = new FileThreadDownload(file, serverPath, path, current, buffer, tmp);
                 fThread.start();
                 System.out.println("Download " + (float) (current * 100 / length) + "% !" + "Current : " + current + "  Size " + buffer);
             } else {
                 ep++;
+                Flag tmp = new Flag();
+                arrF.add(tmp);
                 int size = (int) (length - current);
                 current = length;
                 String path = folderClient + "\\" + songName + "_EP" + ep + ".mp3";
-                FileThreadDownload fThread = new FileThreadDownload(file, serverPath, path, current, size);
+                FileThreadDownload fThread = new FileThreadDownload(file, serverPath, path, current, size, tmp);
                 fThread.start();
                 System.out.println("Download 100% ! " + "Current " + current);
             }
         }
-        try {
-            Thread.sleep(1000);
-        } catch (Exception e) {
-            System.out.println("Exception " + e);
-            e.printStackTrace();
+        
+        
+        boolean dk = true;
+        while(dk){
+            int dem=0;
+            for(int i=0;i<arrF.size();i++){
+                if(arrF.get(i).getValue()==true) dem++;
+            }
+            if(dem==ep) dk=false;
         }
+        
         //Save
         System.out.println("Saving...");
         String savePath = folder + "\\" + songName + ".mp3";
@@ -195,5 +226,7 @@ public class MainController {
         }
         fos.close();
         System.out.println("Saved in " + savePath);
+
+       
     }
 }
