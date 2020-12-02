@@ -24,7 +24,7 @@ public class FileInterfaceImpl extends UnicastRemoteObject implements FileInterf
     }
 
     public String mergeFileInServer(String songName, int ep) throws FileNotFoundException, IOException {
-        String folderPathServer = "C:\\Users\\DucVu\\Documents\\NetBeansProjects\\VideoConverterRMI_Demo1\\VideoConverterRMI_Server\\Music";
+        String folderPathServer = "C:\\Users\\DucVu\\Documents\\NetBeansProjects\\VideoConverterRMI\\VideoConverterRMI_Server\\Music";
         String serverPathMp4 = folderPathServer + "\\" + songName + ".mp4";
         FileOutputStream fos = new FileOutputStream(new File(serverPathMp4));
         long current = 0;
@@ -77,6 +77,10 @@ public class FileInterfaceImpl extends UnicastRemoteObject implements FileInterf
             e.printStackTrace();
         } 
         return data;
+    }
+    
+    public long getFileLength(String url){
+        return new File(url).length();
     }
 
 }

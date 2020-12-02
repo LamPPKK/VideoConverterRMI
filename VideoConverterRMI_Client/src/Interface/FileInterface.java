@@ -15,10 +15,12 @@ import java.io.*;
  */
 public interface FileInterface extends Remote {
 
-    public void UploadFileToServer(byte[] data, String serverPath) throws RemoteException;
+    public void UploadFileToServer(byte[] data,String serverPath) throws RemoteException;
+    
+    public long getFileLength(String serverPath) throws RemoteException;
 
     public byte[] DownloadFileFromServer(String serverPath, long current, int length) throws RemoteException;
-    
+
     public String mergeFileInServer(String songName, int ep) throws RemoteException,FileNotFoundException,IOException;
 
 }

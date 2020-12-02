@@ -28,6 +28,7 @@ public class FileThreadUpload extends Thread{
     public void run(){
         try {
             fileInterface.UploadFileToServer(data, path);
+            flag.setValue();
         } catch (RemoteException ex) {
             System.out.println("Exception "+ex);
             ex.printStackTrace();

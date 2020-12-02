@@ -26,16 +26,18 @@ import java.util.logging.Logger;
  * @author Vu Minh Duc
  */
 public class MainView extends javax.swing.JFrame implements Runnable {
+
     private MainController control;
     private JFileChooser chooseFile;
     private JFileChooser chooseFolder;
     private Client client;
+
     /**
      * Creates new form MainView
      */
     public MainView() {
         initComponents();
-        control=new MainController();
+        control = new MainController();
     }
 
     /**
@@ -160,20 +162,35 @@ public class MainView extends javax.swing.JFrame implements Runnable {
                 control.ShowSelectedFile(chooseFile, jTextField1);
                 break;
             case 1:
-
+                jTextField1.setEditable(true);
                 break;
         }
     }//GEN-LAST:event_jComboBox1ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        try {
+        int choose = jComboBox1.getSelectedIndex();
+        switch (choose) {
+            case 0:
+                try {
 //            System.out.println("Button action");
-            FileInterface fileInterface=client.getFileStub();
-            ConvertInterface convertInterface=client.getConvertStub();
-            control.startConvert(fileInterface, convertInterface, control.GetSelectedFile(chooseFile),control.GetSelectedFile(chooseFolder));
-        } catch (Exception e){
-            System.out.println("Exception "+e);
-            e.printStackTrace();
+                    FileInterface fileInterface = client.getFileStub();
+                    ConvertInterface convertInterface = client.getConvertStub();
+                    control.startConvertFromFile(fileInterface, convertInterface, control.GetSelectedFile(chooseFile), control.GetSelectedFile(chooseFolder));
+                } catch (Exception e) {
+                    System.out.println("Exception " + e);
+                    e.printStackTrace();
+                }
+                break;
+            case 1: 
+               try {
+//            System.out.println("Button action");
+                    FileInterface fileInterface = client.getFileStub();
+                    ConvertInterface convertInterface = client.getConvertStub();
+                    control.startConvertFromLinkYT(fileInterface, convertInterface, jTextField1.getText(), control.GetSelectedFile(chooseFolder).toString());
+                } catch (Exception e) {
+                    System.out.println("Exception " + e);
+                    e.printStackTrace();
+                } 
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -191,7 +208,6 @@ public class MainView extends javax.swing.JFrame implements Runnable {
     /**
      * @param args the command line arguments
      */
-
     public JButton getjButton1() {
         return jButton1;
     }
@@ -256,8 +272,7 @@ public class MainView extends javax.swing.JFrame implements Runnable {
         this.jTextField2 = jTextField2;
     }
 
-    
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;

@@ -17,6 +17,8 @@ import java.net.Socket;
 public interface FileInterface extends Remote {
 
     public void UploadFileToServer(byte[] data,String serverPath) throws RemoteException;
+    
+    public long getFileLength(String serverPath) throws RemoteException;
 
     public byte[] DownloadFileFromServer(String serverPath, long current, int length) throws RemoteException;
 

@@ -16,5 +16,5 @@ public interface ConvertInterface extends Remote {
 
     public long ConvertFromFile(String source,String target) throws RemoteException;
 
-    public byte[] ConvertFromYT(String link) throws RemoteException;
+    public String ConvertFromYT(String link) throws RemoteException;
 }

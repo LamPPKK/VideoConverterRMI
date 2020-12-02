@@ -19,7 +19,7 @@ public class YoutubeDownloader {
     public Object[] Download(String url) {
         String download_path = "C:\\Users\\DucVu\\Documents\\NetBeansProjects\\VideoConverterRMI\\VideoConverterRMI_Server\\youtube_dl"; // nhap duong dan luu file youtubedl
         String doifile = "-o \"C:\\Users\\DucVu\\Documents\\NetBeansProjects\\VideoConverterRMI\\VideoConverterRMI_Server\\youtube_dl\\%(title)s.%(ext)s\" "; // nhap duong dan luu file youtubedl
-//        String toMp3 = " --extract-audio --audio-format mp3";
+        String toMp3 = " --extract-audio --audio-format mp3";
         String[] command
                 = {
                     "cmd",};
@@ -31,7 +31,7 @@ public class YoutubeDownloader {
             PrintWriter stdin = new PrintWriter(p.getOutputStream());
             stdin.println("cd " + download_path);
             stdin.println("youtube-dl " + "--simulate --get-title " + url + " > C:\\Users\\DucVu\\Documents\\NetBeansProjects\\VideoConverterRMI\\VideoConverterRMI_Server\\youtube_dl\\ten.txt");
-            stdin.println("youtube-dl " + doifile + url);
+            stdin.println("youtube-dl " + toMp3 + doifile + url);
             stdin.println("exit");
             stdin.close();
             p.waitFor();
