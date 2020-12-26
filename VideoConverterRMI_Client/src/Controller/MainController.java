@@ -44,7 +44,8 @@ public class MainController {
         int ep = 0;
         ArrayList<Flag> arrF = new ArrayList<Flag>();
         String fileName = source.getName();
-        String folderPathServer = "C:\\Users\\DucVu\\Documents\\NetBeansProjects\\VideoConverterRMI\\VideoConverterRMI_Server\\Music";
+        String folderPathServer = "G:\\Java\\VideoConverterRMI\\VideoConverterRMI_Server\\Music";
+//        String folderPathServer = "C:\\Users\\DucVu\\Documents\\NetBeansProjects\\VideoConverterRMI\\VideoConverterRMI_Server\\Music";
         String songName = fileName.substring(0, fileName.lastIndexOf("."));
         String serverPathMp3 = folderPathServer + "\\" + songName + ".mp3";
         byte[] dataUpload;
@@ -61,7 +62,7 @@ public class MainController {
                 String path = folderPathServer + "\\" + songName + "_EP" + ep + ".mp4";
                 FileThreadUpload fThread = new FileThreadUpload(file, path, dataUpload, tmp);
                 fThread.start();
-                System.out.println("Sending " + (float) (current * 100 / length) + "% !" + "Current : " + current + "  Size " + size);
+//                System.out.println("Sending " + (float) (current * 100 / length) + "% !" + "Current : " + current + "  Size " + size);
             } else {
                 ep++;
                 Flag tmp = new Flag();
@@ -74,27 +75,36 @@ public class MainController {
                 String path = folderPathServer + "\\" + songName + "_EP" + ep + ".mp4";
                 FileThreadUpload fThread = new FileThreadUpload(file, path, dataUpload, tmp);
                 fThread.start();
-                System.out.println("Sending 100% ! " + "Current " + current);
+//                System.out.println("Sending 100% ! " + "Current " + current);
             }
         }
-        
+
         boolean dk = true;
-        while(dk){
-            int dem=0;
-            for(int i=0;i<arrF.size();i++){
-                if(arrF.get(i).getValue()==true) dem++;
+        int process = 0;
+        while (dk) {
+            int dem = 0;
+            for (int i = 0; i < arrF.size(); i++) {
+                if (arrF.get(i).getValue() == true) {
+                    dem++;
+                    if(dem>process){
+                        process=dem;
+                        System.out.println("Sending " + (float) (process * 100 / ep) + "% ...");
+                    }
+                }
             }
-            if(dem==ep) dk=false;
+//            System.out.println("So luong chay xong :"+dem);
+            if (dem == ep) {
+                dk = false;
+            }
         }
-        
+        System.out.println("Sending 100% !");
         arrF.clear();
-        
+
         //Merge file
         System.out.println("Start merge");
         String serverPathMp4 = file.mergeFileInServer(songName, ep);
         System.out.println("Merge done!");
-        
-        
+
         //Convert
         System.out.println("Start convert!");
         length = convert.ConvertFromFile(serverPathMp4, serverPathMp3);
@@ -116,7 +126,7 @@ public class MainController {
                 String path = folderPathClient + "\\" + songName + "_EP" + ep + ".mp3";
                 FileThreadDownload fThread = new FileThreadDownload(file, serverPathMp3, path, current, buffer, tmp);
                 fThread.start();
-                System.out.println("Download " + (float) (current * 100 / length) + "% !" + "Current : " + current + "  Size " + buffer);
+//                System.out.println("Download " + (float) (current * 100 / length) + "% !" + "Current : " + current + "  Size " + buffer);
             } else {
                 ep++;
                 Flag tmp = new Flag();
@@ -126,20 +136,30 @@ public class MainController {
                 String path = folderPathClient + "\\" + songName + "_EP" + ep + ".mp3";
                 FileThreadDownload fThread = new FileThreadDownload(file, serverPathMp3, path, current, size, tmp);
                 fThread.start();
-                System.out.println("Download 100% ! " + "Current " + current);
+//                System.out.println("Download 100% ! " + "Current " + current);
             }
         }
-        
-        
+
         dk = true;
-        while(dk){
-            int dem=0;
-            for(int i=0;i<arrF.size();i++){
-                if(arrF.get(i).getValue()==true) dem++;
+        process=0;
+        while (dk) {
+            int dem = 0;
+            for (int i = 0; i < arrF.size(); i++) {
+                if (arrF.get(i).getValue() == true) {
+                    dem++;
+                    if(dem>process){
+                        process=dem;
+                        System.out.println("Downloading " + (float) (process * 100 / ep) + "% ...");
+                    }
+                }
             }
-            if(dem==ep) dk=false;
+//            System.out.println("So luong chay xong: "+dem);
+            if (dem == ep) {
+                dk = false;
+            }
         }
-        
+        System.out.println("Downloading 100% !");
+
         //Save
         System.out.println("Saving...");
         String savePath = target + "\\" + songName + ".mp3";
@@ -162,13 +182,13 @@ public class MainController {
 
     public void startConvertFromLinkYT(FileInterface file, ConvertInterface convert, String url, String folder) throws RemoteException, FileNotFoundException, IOException {
         ArrayList<Flag> arrF = new ArrayList<Flag>();
-        
+
         long current = 0, length = 0;
         int buffer = 1024 * 64;
-        System.out.println("SaveFolder : " + folder);
+//        System.out.println("SaveFolder : " + folder);
 
         String serverPath = convert.ConvertFromYT(url);
-        System.out.println("Server Path : "+serverPath);
+//        System.out.println("Server Path : " + serverPath);
 //        String serverPath = "C:\\Users\\DucVu\\Documents\\NetBeansProjects\\VideoConverterRMI\\VideoConverterRMI_Server\\youtube_dl\\[LIVE] 2016 Kim Hee Seon and Jackie Chan - Endless Love live.mp4";
         length = file.getFileLength(serverPath);
         System.out.println("Length : " + length);
@@ -186,7 +206,7 @@ public class MainController {
                 String path = folderClient + "\\" + songName + "_EP" + ep + ".mp3";
                 FileThreadDownload fThread = new FileThreadDownload(file, serverPath, path, current, buffer, tmp);
                 fThread.start();
-                System.out.println("Download " + (float) (current * 100 / length) + "% !" + "Current : " + current + "  Size " + buffer);
+//                System.out.println("Download " + (float) (current * 100 / length) + "% !" + "Current : " + current + "  Size " + buffer);
             } else {
                 ep++;
                 Flag tmp = new Flag();
@@ -196,20 +216,30 @@ public class MainController {
                 String path = folderClient + "\\" + songName + "_EP" + ep + ".mp3";
                 FileThreadDownload fThread = new FileThreadDownload(file, serverPath, path, current, size, tmp);
                 fThread.start();
-                System.out.println("Download 100% ! " + "Current " + current);
+//                System.out.println("Download 100% ! " + "Current " + current);
             }
         }
-        
-        
+
+        int process=0;
         boolean dk = true;
-        while(dk){
-            int dem=0;
-            for(int i=0;i<arrF.size();i++){
-                if(arrF.get(i).getValue()==true) dem++;
+        while (dk) {
+            int dem = 0;
+            for (int i = 0; i < arrF.size(); i++) {
+                if (arrF.get(i).getValue() == true) {
+                    dem++;
+                    if(dem>process){
+                        process=dem;
+                        System.out.println("Downloading" + (float) (process * 100 / ep) + "% ...");
+                    }
+
+                }
             }
-            if(dem==ep) dk=false;
+            if (dem == ep) {
+                dk = false;
+            }
         }
-        
+        System.out.println("Downloading 100% !");
+
         //Save
         System.out.println("Saving...");
         String savePath = folder + "\\" + songName + ".mp3";
@@ -226,7 +256,5 @@ public class MainController {
         }
         fos.close();
         System.out.println("Saved in " + savePath);
-
-       
     }
 }

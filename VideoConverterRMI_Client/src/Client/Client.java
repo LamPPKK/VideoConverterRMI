@@ -8,6 +8,7 @@ package Client;
 import Interface.FileInterface;
 import Interface.ConvertInterface;
 import View.MainView;
+import View.View;
 import java.io.*;
 import java.util.*;
 import java.rmi.*;
@@ -20,6 +21,7 @@ import java.net.*;
  */
 public class Client implements Runnable {
 
+//    MainView view;
     MainView view;
     Socket client;
     public ConvertInterface convertStub;
@@ -27,8 +29,9 @@ public class Client implements Runnable {
 
 //    private Socket clientSocket;
     public Client() throws RemoteException, NotBoundException, IOException {
-        fileStub = (FileInterface) Naming.lookup("rmi://localhost/file");
-        convertStub = (ConvertInterface) Naming.lookup("rmi://localhost/convert");
+        fileStub = (FileInterface) Naming.lookup("rmi://192.168.43.41/file");
+        convertStub = (ConvertInterface) Naming.lookup("rmi://192.168.43.41/convert");
+//        view = new MainView();
         view = new MainView();
         view.setClient(this);
     }
@@ -38,9 +41,9 @@ public class Client implements Runnable {
         view.setVisible(true);
     }
 
-    public MainView getView() {
-        return view;
-    }
+//    public MainView getView() {
+//        return view;
+//    }
 
 
     public Socket getClient() {

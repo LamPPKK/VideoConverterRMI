@@ -15,10 +15,17 @@ import java.io.Serializable;
 public class Flag implements Serializable{
 
     static final long serialVersionUID = 1L;
-    public boolean value=false;
+    public boolean value;
 
+    public Flag() {
+        this.value=false;
+    }
+    
     public void setValue() {
         this.value = true;
     }
-
+    
+    public boolean getValue(){
+        return this.value;
+    }
 }
