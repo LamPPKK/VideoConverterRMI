@@ -39,7 +39,7 @@ public class FileInterfaceImpl extends UnicastRemoteObject implements FileInterf
             current += data.length;
             fis.close();
             fos.write(data);
-            System.out.println("Current " + current + " Kich thuoc them" + data.length);
+            System.out.println("Current " + current + " Data + " + data.length +" bytes");
         }
         fos.close();
         System.out.println("Merge done !");
